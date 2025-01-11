@@ -88,6 +88,41 @@ ranger_tune <-
             resamples = titanic_folds, 
             grid = 11)
 
+################################################################################
+# Results
+
+show_best(ranger_tune, metric = 'roc_auc')
+
+autoplot(ranger_tune)
+
+
+################################################################################
+# Finalizing
+
+final_rf <- ranger_workflow %>% 
+  finalize_workflow(select_best(ranger_tune))
+
+final_rf
+
+### fitting to split
+titanic_fit <- last_fit(final_rf, titanic_split) 
+titanic_fit
+
+################################################################################
+# Metrics
+
+collect_metrics(titanic_fit)
+
+################################################################################
+# Collecting Predictions
+
+preds <- collect_predictions(titanic_fit)
+
+preds %>% conf_mat(truth = Survived, estimate = .pred_class)
+
+
+
+
 
 
 
