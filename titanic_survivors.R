@@ -8,6 +8,9 @@ glimpse(train)
 train$Pclass <- as.factor(train$Pclass) # feature engineering
 skimr::skim(train) # looking at missing + more
 
+# str_sub(Cabin, 1, 1) dplyr
+# str_extract(Cabin, "^.") regex
+
 ################################################################################
 # Explore Data for basic understanding
 test <- read.csv('titanic_test.csv')
