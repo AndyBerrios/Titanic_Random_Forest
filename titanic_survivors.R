@@ -1,13 +1,14 @@
 library(tidyverse)
 library(tidymodels)
-library(naniar)
+library(usemodels)
 
-
+################################################################################
 # Inspect Data
 glimpse(train)
-train$Pclass <- as.factor(train$Pclass) # fixes later
+train$Pclass <- as.factor(train$Pclass) # feature engineering
 skimr::skim(train) # looking at missing + more
 
+################################################################################
 # Explore Data for basic understanding
 test <- read.csv('titanic_test.csv')
 train <- read.csv('titanic_train.csv')
@@ -40,22 +41,47 @@ train %>% ggplot(aes(x = Pclass, fill = Pclass)) +
   facet_grid(~Survived, labeller = as_labeller(c('0' = 'Did Not Survive', '1' = 'Survived'))) 
 
 ### The '3' Passenger class had the largest fatality. One can assume these were the cheaper cabins further down into the ship.
+### OR, did they have the most people? Both...
 
 train %>% group_by(Pclass) %>% summarise(avg_price = mean(Fare))
+train %>% group_by(Pclass) %>% count()
 
+################################################################################
 # Building Model
 
+set.seed(123)
+titanic_split <- initial_split(train, strata = Survived)
+titanic_train <- training(titanic_split)
+titanic_test <- testing(titanic_split)
+
+### Resample (ensures quality, helps tune)
+titanic_folds <- bootstraps(titanic_train, strata = Survived)
+titanic_folds
+
+### Model Scaffolding
+
+use_ranger(Survived ~., data = titanic_train) # From this we get below
 
 
+ranger_recipe <- 
+  recipe(formula = Survived ~ ., data = titanic_train) 
 
+ranger_spec <- 
+  rand_forest(mtry = tune(), min_n = tune(), trees = 1000) %>% 
+  set_mode("classification") %>% 
+  set_engine("ranger") 
 
+ranger_workflow <- 
+  workflow() %>% 
+  add_recipe(ranger_recipe) %>% 
+  add_model(ranger_spec) 
 
-
-
-
-
-
-
+set.seed(84361)
+doParallel::registerDoParallel()
+ranger_tune <-
+  tune_grid(ranger_workflow, 
+            resamples = titanic_folds, 
+            grid = 11)
 
 
 
