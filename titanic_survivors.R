@@ -6,6 +6,7 @@ library(usemodels)
 # Inspect Data
 glimpse(train)
 train$Pclass <- as.factor(train$Pclass) # feature engineering
+train$Survived <- as.factor(train$Survived) # feature engineering
 skimr::skim(train) # looking at missing + more
 
 # str_sub(Cabin, 1, 1) dplyr
@@ -67,7 +68,8 @@ use_ranger(Survived ~., data = titanic_train) # From this we get below
 
 
 ranger_recipe <- 
-  recipe(formula = Survived ~ ., data = titanic_train) 
+  recipe(formula = Survived ~ ., data = titanic_train) %>% 
+  step_impute_knn(Cabin)
 
 ranger_spec <- 
   rand_forest(mtry = tune(), min_n = tune(), trees = 1000) %>% 
