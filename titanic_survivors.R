@@ -4,18 +4,23 @@ library(usemodels)
 
 ################################################################################
 # Inspect Data
+
+test <- read.csv('titanic_test.csv')
+train <- read.csv('titanic_train.csv')
+
+
 glimpse(train)
 train$Pclass <- as.factor(train$Pclass) # feature engineering
 train$Survived <- as.factor(train$Survived) # feature engineering
 skimr::skim(train) # looking at missing + more
+
+test$Pclass <- as.factor(test$Pclass) # feature engineering
 
 # str_sub(Cabin, 1, 1) dplyr
 # str_extract(Cabin, "^.") regex
 
 ################################################################################
 # Explore Data for basic understanding
-test <- read.csv('titanic_test.csv')
-train <- read.csv('titanic_train.csv')
 
 train %>%
   ggplot(aes(x = Sex, fill = Sex)) +
@@ -120,7 +125,10 @@ preds <- collect_predictions(titanic_fit)
 
 preds %>% conf_mat(truth = Survived, estimate = .pred_class)
 
+################################################################################
+# Unseen Data
 
+predict(titanic_fit$.workflow[[1]], test)
 
 
 
