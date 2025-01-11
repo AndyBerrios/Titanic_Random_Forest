@@ -1,6 +1,8 @@
 library(tidyverse)
 library(tidymodels)
 library(usemodels)
+library(vip)
+library(ggstatsplot)
 
 ################################################################################
 # Inspect Data
@@ -130,11 +132,23 @@ preds %>% conf_mat(truth = Survived, estimate = .pred_class)
 
 predict(titanic_fit$.workflow[[1]], test)
 
+################################################################################
+# VIP
+
+imp_spec <- ranger_spec %>% 
+  finalize_model(select_best(ranger_tune)) %>% 
+  set_engine('ranger', importance = 'permutation')
+
+workflow() %>% 
+  add_recipe(ranger_recipe) %>% 
+  add_model(imp_spec) %>% 
+  fit(train) %>% 
+  pull_workflow_fit() %>% 
+  vip(aesthetics = list(alpha = .8, fill = 'dodgerblue'))
 
 
-
-
-
+################################################################################
+# Correlation
 
 
 
