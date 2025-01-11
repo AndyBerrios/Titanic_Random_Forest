@@ -1,9 +1,12 @@
 library(tidyverse)
 library(tidymodels)
+library(naniar)
 
 
 # Inspect Data
-str(train)
+glimpse(train)
+train$Pclass <- as.factor(train$Pclass) # fixes later
+skimr::skim(train) # looking at missing + more
 
 # Explore Data for basic understanding
 test <- read.csv('titanic_test.csv')
@@ -15,7 +18,6 @@ train %>%
   facet_wrap(~ Survived, labeller = as_labeller(c('0' = 'Did Not Survive', '1' = 'Survived'))) +
   labs(x = NULL, y = "Number of People") +
   theme(
-    strip.text = element_text(size = 12, face = "bold"),
     axis.text.x = element_blank(),
     axis.ticks.x = element_blank(),
     legend.position = "right"
@@ -32,6 +34,27 @@ train %>%
 ### out of the 62% that perished, 65% were men.
 
 ## Now lets see what the difference is when it comes to classes
+
+train %>% ggplot(aes(x = Pclass, fill = Pclass)) +
+  geom_bar(position = 'dodge') + 
+  facet_grid(~Survived, labeller = as_labeller(c('0' = 'Did Not Survive', '1' = 'Survived'))) 
+
+### The '3' Passenger class had the largest fatality. One can assume these were the cheaper cabins further down into the ship.
+
+train %>% group_by(Pclass) %>% summarise(avg_price = mean(Fare))
+
+# Building Model
+
+
+
+
+
+
+
+
+
+
+
 
 
 
