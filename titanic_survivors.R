@@ -120,6 +120,14 @@ titanic_fit
 
 collect_metrics(titanic_fit)
 
+
+### Results
+#     .metric     .estimator .estimate             
+#       <chr>       <chr>          <dbl>                
+# 1   accuracy    binary         0.821 
+# 2   roc_auc     binary         0.877 
+# 3   brier_class binary         0.165 
+
 ################################################################################
 # Collecting Predictions
 
@@ -149,6 +157,46 @@ workflow() %>%
 
 ################################################################################
 # Correlation
+
+ggbarstats(
+  data = train,
+  x = Sex,
+  y = Pclass,
+  label = 'both'
+)
+
+### Weak correlation(low Cramer value) 
+
+################################################################################
+# Random
+
+train %>%
+  group_by(Pclass) %>%
+  select(Pclass, Fare) %>% 
+  group_map(~ summary(.x))
+### group_map(~ summary(.x)): Applies the summary() function to each group (.x represents the grouped data)
+
+train <- train %>% mutate(Cabin_assi = str_sub(Cabin, 1, 1))
+
+
+ggbarstats(
+  data = train %>% filter(Cabin_assi != ''),
+  x = Pclass,
+  y = Cabin_assi,
+  label = 'both'
+)
+ 
+
+
+
+
+
+
+
+
+
+
+
 
 
 
